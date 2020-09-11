@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -1130,12 +1131,12 @@ func (c *Conn) SetPingHandler(h func(appData string) error) {
 	if h == nil {
 		h = func(message string) error {
 			err := c.WriteControl(PongMessage, []byte(message), time.Now().Add(writeWait))
-			if err == ErrCloseSent {
-				return nil
-			} else if e, ok := err.(net.Error); ok && e.Temporary() {
-				return nil
-			}
-			return err
+			//if err == ErrCloseSent {
+			//	return nil
+			//} else if e, ok := err.(net.Error); ok && e.Temporary() {
+			//	return nil
+			//}
+			return fmt.Errorf("debug ping mesage: %s, %w", message, err)
 		}
 	}
 	c.handlePing = h
