@@ -1131,12 +1131,12 @@ func (c *Conn) SetPingHandler(h func(appData string) error) {
 	if h == nil {
 		h = func(message string) error {
 			err := c.WriteControl(PongMessage, []byte(message), time.Now().Add(writeWait))
-			//if err == ErrCloseSent {
-			//	return nil
-			//} else if e, ok := err.(net.Error); ok && e.Temporary() {
-			//	return nil
-			//}
-			return fmt.Errorf("debug ping mesage: %s, %w", message, err)
+			if err == ErrCloseSent {
+				return nil
+			} else if e, ok := err.(net.Error); ok && e.Temporary() {
+				return nil
+			}
+			return err
 		}
 	}
 	c.handlePing = h
@@ -1156,7 +1156,7 @@ func (c *Conn) PongHandler() func(appData string) error {
 // pong messages as described in the section on Control Messages above.
 func (c *Conn) SetPongHandler(h func(appData string) error) {
 	if h == nil {
-		h = func(string) error { return nil }
+		h = func(string) error { return fmt.Errorf("receive pong message") }
 	}
 	c.handlePong = h
 }
